@@ -29,6 +29,9 @@ APPVERSION_P=0
 
 APP_LOAD_PARAMS = --appFlags 0x200 --delete $(COMMON_LOAD_PARAMS) --path "44'/453'"
 
+# Add security review banner. To be removed once Ledger security review is done.
+APP_LOAD_PARAMS += --tlvraw 9F:01
+
 ifeq ($(TARGET_NAME),TARGET_NANOS)
 SCRIPT_LD:=$(CURDIR)/script.ld
 ICONNAME:=$(CURDIR)/nanos_icon.gif
@@ -80,12 +83,16 @@ DEFINES       += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
 
 DEFINES          += HAVE_UX_FLOW
 
+# Bluetooth stuff for Nano X
+DEFINES 	  += HAVE_BLE
+DEFINES 	  += HAVE_BLE_APDU BLE_COMMAND_TIMEOUT_MS=2000
+
 #SDK_SOURCE_PATH  += lib_blewbxx lib_blewbxx_impl
 SDK_SOURCE_PATH  += lib_ux
 else
 # Assume Nano S
 DEFINES       += IO_SEPROXYHAL_BUFFER_SIZE_B=128
-DEFINES       += HAVE_BOLOS_UX COMPLIANCE_UX_160 HAVE_UX_LEGACY HAVE_UX_FLOW
+DEFINES       += COMPLIANCE_UX_160 HAVE_UX_LEGACY HAVE_UX_FLOW
 endif
 
 # X specific
@@ -129,9 +136,12 @@ include $(BOLOS_SDK)/Makefile.glyphs
 
 APP_SOURCE_PATH += src deps/jsmn/src deps/ledger-zxlib/include deps/ledger-zxlib/src
 SDK_SOURCE_PATH += lib_stusb lib_u2f lib_stusb_impl
+SDK_SOURCE_PATH += lib_ux
 
-#SDK_SOURCE_PATH  += lib_blewbxx lib_blewbxx_impl
-SDK_SOURCE_PATH  += lib_ux
+ifeq ($(TARGET_NAME),TARGET_NANOX)
+SDK_SOURCE_PATH += lib_blewbxx lib_blewbxx_impl
+endif
+
 
 load:
 	python -m ledgerblue.loadApp $(APP_LOAD_PARAMS)
