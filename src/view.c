@@ -22,6 +22,7 @@
 #include "actions.h"
 #include "apdu_codes.h"
 #include "ux.h"
+#include "os_io_seproxyhal.h"
 #include "bagl.h"
 #include "zxmacros.h"
 #include "view_templates.h"
